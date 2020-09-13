@@ -466,7 +466,7 @@ int chessposition::alphabeta(int alpha, int beta, int depth)
                 return beta;
             }
             // Verification search
-            nullmoveply = ply + 3 * (depth - R) / 2;
+            nullmoveply = ply + 3 * (depth - R) / 8;
             nullmoveside = ply % 2;
             int verificationscore = alphabeta(beta - 1, beta, depth - R);
             nullmoveside = nullmoveply = 0;
