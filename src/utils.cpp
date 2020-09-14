@@ -331,6 +331,7 @@ void compilerinfo::GetSystemInfo()
     nIds = CPUInfo[0];
 
     // Get the information associated with each valid Id
+    // https://www.sandpile.org/x86/cpuid.htm
     for (i = 0; i <= nIds; ++i)
     {
         CPUID(CPUInfo, i);
@@ -340,6 +341,7 @@ void compilerinfo::GetSystemInfo()
             if (CPUInfo[3] & (1 << 23)) machineSupports |= CPUMMX;
             if (CPUInfo[3] & (1 << 26)) machineSupports |= CPUSSE2;
             if (CPUInfo[2] & (1 << 23)) machineSupports |= CPUPOPCNT;
+            if (CPUInfo[2] & (1 << 19)) machineSupports |= CPUSSE41;
             if (CPUInfo[2] & (1 <<  0)) machineSupports |= CPUSSSE3;
         }
 

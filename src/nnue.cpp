@@ -29,6 +29,9 @@
 #if defined(USE_AVX2)
 #include <immintrin.h>
 
+#elif defined(USE_SSE41)
+#include <smmintrin.h>
+
 #elif defined(USE_SSSE3)
 #include <tmmintrin.h>
 
@@ -326,6 +329,10 @@ void chessposition::Transform(clipped_t *output)
     const unsigned numChunks = NnueFtHalfdims / 32;
     const __m256i kZero = _mm256_setzero_si256();
 
+#elif defined(USE_SSE41)
+  const unsigned numChunks = NnueFtHalfdims / 16;
+  const __m128i kZero = _mm_setzero_si128();
+
 #elif defined(USE_SSSE3)
     const unsigned numChunks = NnueFtHalfdims / 16;
     const __m128i k0x80s = _mm_set1_epi8(-128);
@@ -356,7 +363,11 @@ void chessposition::Transform(clipped_t *output)
             __m128i sum0 = ((__m128i*)(*acc)[perspectives[p]])[i * 2 + 0];
             __m128i sum1 = ((__m128i*)(*acc)[perspectives[p]])[i * 2 + 1];
             __m128i packedbytes = _mm_packs_epi16(sum0, sum1);
+#if defined(USE_SSE41)
+            out[i] = _mm_max_epi8(packedbytes, kZero);
+#else
             out[i] = _mm_subs_epi8(_mm_adds_epi8(packedbytes, k0x80s), k0x80s);
+#endif
         }
 
 #elif defined(USE_NEON)
@@ -587,7 +598,11 @@ void NnueClippedRelu::Propagate(int32_t *input, clipped_t *output)
 
 #elif defined(USE_SSSE3)
     const unsigned numChunks = dims / 16;
+#ifdef USE_SSE41
+  const __m128i kZero = _mm_setzero_si128();
+#else
     const __m128i k0x80s = _mm_set1_epi8(-128);
+#endif
     __m128i* in = (__m128i*)input;
     __m128i* out = (__m128i*)output;
     for (unsigned i = 0; i < numChunks; i++) {
@@ -596,7 +611,11 @@ void NnueClippedRelu::Propagate(int32_t *input, clipped_t *output)
         __m128i words1 = _mm_srai_epi16(
             _mm_packs_epi32(in[i * 4 + 2], in[i * 4 + 3]), NnueClippingShift);
         __m128i packedbytes = _mm_packs_epi16(words0, words1);
+#ifdef USE_SSE41
+        out[i] = _mm_max_epi8(packedbytes, kZero);
+#else
         out[i] = _mm_subs_epi8(_mm_adds_epi8(packedbytes, k0x80s), k0x80s);
+#endif
     }
 
 #elif defined(USE_NEON)

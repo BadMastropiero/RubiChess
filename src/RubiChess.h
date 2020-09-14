@@ -1447,11 +1447,12 @@ enum ponderstate_t { NO, PONDERING, HITPONDER };
 #define CPUMMX      (1 << 0)
 #define CPUSSE2     (1 << 1)
 #define CPUSSSE3    (1 << 2)
-#define CPUPOPCNT   (1 << 3)
-#define CPUAVX2     (1 << 4)
-#define CPUBMI2     (1 << 5)
+#define CPUSSE41    (1 << 3)
+#define CPUPOPCNT   (1 << 4)
+#define CPUAVX2     (1 << 5)
+#define CPUBMI2     (1 << 6)
 
-#define STRCPUFEATURELIST  { "mmx","sse2","ssse3","popcnt","avx2","bmi2" }
+#define STRCPUFEATURELIST  { "mmx","sse2","ssse3","sse4.1","popcnt","avx2","bmi2" }
 
 
 extern const string strCpuFeatures[];
@@ -1471,6 +1472,9 @@ public:
 #endif
 #ifdef USE_SSSE3
         | CPUSSSE3
+#endif
+#ifdef USE_SSE41
+        | CPUSSE41
 #endif
 #ifdef USE_AVX2
         | CPUAVX2
