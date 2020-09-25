@@ -235,6 +235,7 @@ void registerallevals(chessposition *pos)
 
     // kingdanger evals
     tuneIt = false;
+    registertuner(pos, &eps.eKingdangeradjust, "eKingdangeradjust", 0, 0, 0, 0, tuneIt);
     registertuner(pos, &eps.eWeakkingringpenalty, "eWeakkingringpenalty", 0, 0, 0, 0, tuneIt);
     for (i = 0; i < 7; i++)
         registertuner(pos, &eps.eKingattackweight[i], "eKingattackweight", i, 7, 0, 0, tuneIt && (i >= KNIGHT && i <= QUEEN));
@@ -667,7 +668,8 @@ int chessposition::getLateEval(positioneval *pe)
     }
 
     // King safety; calculate the danger for my king
-    int kingdanger = SQEVAL(eps.eKingringattack[POPCOUNT(kingdangerMask[kingpos[Me]][Me]) - 4], pe->kingringattacks[You], You);
+    int kingdanger = SQEVAL(eps.eKingdangeradjust, 1, You);
+    kingdanger += SQEVAL(eps.eKingringattack[POPCOUNT(kingdangerMask[kingpos[Me]][Me]) - 4], pe->kingringattacks[You], You);
 
     // My attacked and poorly defended squares
     U64 myweaksquares = attackedBy[You][0]
